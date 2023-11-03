@@ -45,5 +45,4 @@ def validUTF8(data):
             else:
                 return False
 
-    # If there are remaining bytes, return False
-    return num_bytes == 0
+    # If there are remaining b
