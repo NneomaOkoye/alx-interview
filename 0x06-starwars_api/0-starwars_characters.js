@@ -1,25 +1,24 @@
 #!/usr/bin/node
-const request = require('request');
-const API_URL = 'https://swapi-api.hbtn.io/api';
+const util = require('util');
+const request = util.promisify(require('request'));
 
-if (process.argv.length > 2) {
-  request(`${API_URL}/films/${process.argv[2]}/`, (err, _, body) => {
-    if (err) {
-      console.log(err);
+const filmId = process.argv[2];
+
+async function main(id) {
+  try {
+    const filmEndpoint = 'https://swapi-api.hbtn.io/api/films/' + filmId;
+    let filmResponse = await request(filmEndpoint);
+    const filmData = JSON.parse(filmResponse.body);
+    const characters = filmData.characters;
+
+    for (const characterEndpoint of characters) {
+      let characterResponse = await request(characterEndpoint);
+      const characterData = JSON.parse(characterResponse.body);
+      console.log(characterData.name);
     }
-    const charactersURL = JSON.parse(body).characters;
-    const charactersName = charactersURL.map(
-      url => new Promise((resolve, reject) => {
-        request(url, (promiseErr, __, charactersReqBody) => {
-          if (promiseErr) {
-            reject(promiseErr);
-          }
-          resolve(JSON.parse(charactersReqBody).name);
-        });
-      }));
-
-    Promise.all(charactersName)
-      .then(names => console.log(names.join('\n')))
-      .catch(allErr => console.log(allErr));
-  });
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
 }
+
+main(filmId);
