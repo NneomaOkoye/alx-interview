@@ -1,45 +1,65 @@
 #!/usr/bin/python3
-"""
-This module contains my solution to prime_game problem
-"""
+'''
+Game of primes: Determine the winner for each round
+'''
 
 
 def isWinner(x, nums):
-    """
-    returns the winner of the game played by maria and ben
+    '''
+    Determine the winner of each round
 
-    parameters:
-       x - number of rounds of game
-       nums - array of numbers n
+    Args:
+        x (int): Number of rounds to play
+        nums (list): List of integers representing the range of numbers for each rnd
 
-    return:
-      name of player that won the most rounds
-    """
-    if x < 1 or not nums:
+    Returns:
+        str or None: The name of the player with the most wins or None
+    '''
+
+
+    def rec(n):
+        '''
+        Play a single round of the game
+
+        Args:
+            n (int): The range of numbers for this round
+
+        Returns:
+            int: 1 if Maria wins, 2 if Ben wins
+        '''
+        if n == 1:
+            return 2
+        if n == 2:
+            return 1
+
+        count = 0
+        for num in range(3, n + 1):
+            for i in range(2, num):
+                if (num % i) == 0:
+                    break
+            else:
+                count += 1
+
+        if count % 2:
+            return 2
+        return 1
+
+    if x == 0 or len(nums) != x:
         return None
-    maria_wins = 0
-    ben_wins = 0
 
-    for n in nums:
-        prime_count = sum(1 for i in range(2, n + 1) if is_prime(i))
-        if prime_count % 2 == 0:
-            ben_wins += 1
+    maria = 0
+    ben = 0
+
+    for rnd in nums:
+        result = rec(rnd)
+        if result == 1:
+            maria += 1
         else:
-            maria_wins += 1
+            ben += 1
 
-    if maria_wins > ben_wins:
-        return "Maria"
-    elif ben_wins > maria_wins:
-        return "Ben"
-    else:
+    if maria == ben:
         return None
-
-
-def is_prime(num):
-    """check if a given number is a prime number"""
-    if num <= 1:
-        return False
-    for i in range(2, int(num ** 0.5) + 1):
-        if num % i == 0:
-            return False
-    return True
+    elif maria > ben:
+        return "Maria"
+    else:
+        return "Ben"
